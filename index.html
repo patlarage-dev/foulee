@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#245ca6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Foulée">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/icons/favicon.png">
+  <title>Foulée — Coach running</title>
+  <script>try{if(localStorage.getItem("foulee.theme")==="dark")document.documentElement.dataset.theme="dark";}catch{}</script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#calendrier" aria-label="Foulée, calendrier"><span class="brand-mark"><img src="/icons/shoe-f.svg" alt="" width="48" height="48"></span><span>foulée<span class="brand-dot">.</span></span></a>
+      <div class="local-badge" hidden><span></span> Données synchronisées avec le Mac</div>
+      <div class="active-user-toolbar" id="active-user-toolbar" aria-label="Espace sportif actif" hidden>
+        <span>Profil actif <b id="active-athlete-label"></b></span>
+
+
+      </div>
+    </header>
+    <nav class="app-navigation" aria-label="Navigation principale" hidden>
+      <a href="#calendrier"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 14h2m4 0h2m-8 4h2"/></svg><span>Calendrier</span></a>
+      <a href="#plan"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h2m4 0h5M7 12h2m4 0h5M7 16h2m4 0h5"/></svg><span>Plan</span></a>
+      <a href="#libre"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15" cy="4" r="2"/><path d="m8 10 4-3 4 4 4 1M12 7l-2 7 5 3 1 5M10 14l-4 6H2"/></svg><span>Exercice libre</span></a>
+      <a href="#parametres"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3 1-2h4l1 2 2 1 2-.2 2 3-1 2v3l1 2-2 3-2-.2-2 1-1 2h-4l-1-2-2-1-2 .2-2-3 1-2v-3l-1-2 2-3 2 .2Z"/><circle cx="12" cy="10.5" r="3"/><circle class="pwa-update-dot" cx="21" cy="3" r="4"/></svg><span>Paramètres</span></a>
+    </nav>
+    <main id="calendar-page" hidden>
+      <section class="intro"><div class="eyebrow">TON HISTORIQUE</div><h1>Ton <em>calendrier.</em></h1><p>Retrouve tes exercices réalisés et les prochaines séances de ton plan actif.</p><a class="plan-open-link" href="#exercices">Importer un exercice <span>↗</span></a></section>
+      <section class="panel calendar-panel" id="calendar-content"></section>
+    </main>
+    <main id="settings-page" hidden>
+      <section class="intro"><h1>Tes <em>paramètres.</em></h1><p>Apparence, profil et connexion au Mac.</p></section>
+      <section class="panel settings-panel"><h2>Application et profil</h2>
+          <div class="settings-actions toolbar-tools-list">
+            <a href="#plans-enregistres" class="options-roadmap" aria-label="Accéder aux plans enregistrés"><span>Plans enregistrés</span><span aria-hidden="true">›</span></a>
+            <a href="#profil" class="options-roadmap">Mon profil sportif</a>
+            <a href="#roadmap" class="options-roadmap">Roadmap</a>
+            <div class="appearance-options"><span class="options-section-label">Options graphiques</span><button type="button" id="dark-mode-toggle" role="switch" aria-checked="false"><span>Mode sombre</span><span class="theme-switch" aria-hidden="true"></span></button></div>
+        <button type="button" id="sync-connect" class="sync-connect-link" hidden>Connecter au Mac</button>
+        <button type="button" id="change-athlete">Changer d’utilisateur</button>
+        <button type="button" id="export-athlete">Exporter</button>
+        <button type="button" id="import-athlete">Importer</button>
+        <button type="button" id="import-results">Importer résultats</button>
+        <input type="file" id="athlete-file" accept="application/json,.json" hidden>
+        <input type="file" id="results-file" accept="application/json,.json" hidden>
+          </div>
+      </section>
+      <aside class="panel pwa-panel" aria-label="Installation et mises à jour"><h2>Installation et mises à jour</h2>
+        <button type="button" id="pwa-install" class="secondary-button">Installer Foulée</button>
+        <p id="pwa-status" role="status"></p>
+        <button type="button" id="pwa-update" class="secondary-button" hidden>Mettre à jour Foulée</button>
+      </aside>
+    </main>
+
+    <main id="saved-plans-page" hidden>
+      <a href="#parametres" class="calendar-back">← Paramètres</a>
+      <section class="intro"><h1>Plans <em>enregistrés.</em></h1></section>
+      <section class="panel plan-library-panel">
+        <div class="panel-heading"><div><h2>Mes plans enregistrés</h2></div><button id="new-plan" class="primary-button" type="button"><span>Créer un plan</span><span>＋</span></button></div>
+        <div id="saved-plans-list" class="saved-plans-list"></div>
+      </section>
+    </main>
+
+    <main id="plan-editor-page" hidden>
+      <a href="#plans-enregistres" class="calendar-back">← Plans enregistrés</a>
+        <section class="panel plan-form-panel" id="plan-form-panel" hidden>
+          <div class="panel-heading"><div><h2 id="plan-editor-title">Mon objectif de course</h2></div><button type="button" id="cancel-plan-edit" class="cancel-editor">Annuler</button></div>
+          <form id="plan-form">
+            <label class="field-label" for="plan-title">Titre du plan</label>
+            <input class="text-input" id="plan-title" name="title" type="text" maxlength="100" placeholder="Marathon de Paris, remise en forme…" required>
+
+            <fieldset class="plan-kind-picker"><legend>Type de plan</legend><div class="plan-kind-options">
+              <label><input type="radio" name="kind" value="race" checked><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3m0 1h14l-3 4 3 4H5"/></svg>Course</span></label>
+              <label><input type="radio" name="kind" value="general"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5c-3-3-6-1-8 1-2-2-5-4-8-1-4 4 1 9 8 15 7-6 12-11 8-15Z"/></svg>Maintien en forme</span></label>
+            </div></fieldset>
+            <label class="field-label spaced" id="plan-goal-label" for="plan-goal">Course préparée</label>
+            <select id="plan-goal" name="goal"><option value="5k">5 km</option><option value="10k">10 km</option><option value="semi">Semi-marathon</option><option value="marathon">Marathon</option></select>
+            <div class="field-row"><div><label class="field-label" for="plan-start">Début du plan</label><input class="text-input" id="plan-start" name="startDate" type="date" required></div><div><label class="field-label" id="plan-end-label" for="plan-race">Date de la course</label><input class="text-input" id="plan-race" name="raceDate" type="date" required></div></div>
+            <label class="field-label spaced">Temps visé</label>
+            <div class="time-fields target-time"><label><input name="targetHours" type="number" min="0" max="20" placeholder="3" aria-label="Heures visées"><span>h</span></label><label><input name="targetMinutes" type="number" min="0" max="59" placeholder="45" aria-label="Minutes visées" required><span>min</span></label></div>
+            <fieldset class="weekday-picker"><legend>Jours habituels de course</legend><p>Choisis de 2 à 5 jours. Chaque jour coché correspond à une séance.</p><div class="weekday-options"><label><input type="checkbox" name="trainingWeekday" value="1"><span>Lun</span></label><label><input type="checkbox" name="trainingWeekday" value="2"><span>Mar</span></label><label><input type="checkbox" name="trainingWeekday" value="3"><span>Mer</span></label><label><input type="checkbox" name="trainingWeekday" value="4"><span>Jeu</span></label><label><input type="checkbox" name="trainingWeekday" value="5"><span>Ven</span></label><label><input type="checkbox" name="trainingWeekday" value="6"><span>Sam</span></label><label><input type="checkbox" name="trainingWeekday" value="0"><span>Dim</span></label></div><output id="plan-days-summary" aria-live="polite"></output><input id="plan-days" name="days" type="hidden" value="3"></fieldset>
+            <details class="plan-pace-menu"><summary>Repères d’allure</summary>
+            <div id="plan-reference-settings"><label class="field-label spaced" for="reference-race">Résultat utilisé pour calculer les allures</label>
+            <select id="reference-race" name="referenceRaceId"></select>
+            <p class="field-explanation">Tu peux choisir la course qui représente le mieux ta forme actuelle.</p></div>
+            <div id="plan-pace-settings"></div></details>
+            <button class="primary-button save-profile-button" type="submit"><span id="plan-submit-label">Créer et enregistrer le plan</span><span>↗</span></button>
+            <p class="plan-form-note">Le plan sera enregistré dans l’espace de la personne sélectionnée. Il s’appuie sur son profil et ses résultats de course.</p>
+          </form>
+        </section>
+    </main>
+
+    <main id="access-page" hidden>
+      <section class="user-select-hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span> FOULÉE · DONNÉES PARTAGÉES</div>
+        <h1>Accès à Foulée</h1>
+        <p>Saisis le code d’accès configuré sur le Mac qui héberge l’application.</p>
+      </section>
+      <section class="user-select-content">
+        <button type="button" id="offline-continue" class="secondary-button" hidden>Continuer hors connexion</button>
+        <form id="access-form" class="create-athlete-form">
+          <label for="access-code">Code d’accès</label>
+          <div><input id="access-code" type="password" autocomplete="current-password" required><button class="primary-button" type="submit">Continuer <span>↗</span></button></div>
+          <p id="access-message" role="status" class="privacy-note">Le code se trouve dans le fichier access-code.txt du dossier Application Support/Foulee sur le Mac.</p>
+        </form>
+      </section>
+    </main>
+
+    <main id="user-select-page" hidden>
+      <section class="user-select-hero">
+        <div class="eyebrow"><span class="eyebrow-line"></span> FOULÉE · ESPACES PERSONNELS</div>
+        <h1>Qui s’entraîne&nbsp;?</h1>
+        <p>Choisis un profil pour retrouver son programme et ses séances.</p>
+      </section>
+      <section class="user-select-content" aria-label="Choix du profil">
+        <div id="athlete-choice-list" class="athlete-choice-list"></div>
+        <div id="chooser-sync-actions" class="chooser-sync-actions"></div>
+        <form id="create-athlete-form" class="create-athlete-form">
+          <label for="new-athlete-name">Créer un nouvel espace</label>
+          <div><input id="new-athlete-name" name="name" maxlength="50" placeholder="Prénom ou nom" required><button class="primary-button" type="submit">Créer mon profil <span>↗</span></button></div>
+        </form>
+      </section>
+    </main>
+
+    <main id="exercise-page" hidden>
+      <a class="calendar-back" href="#calendrier"><span aria-hidden="true">←</span> Calendrier</a>
+      <section class="intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> ANALYSE D’UN EXERCICE</div>
+        <h1>Ta séance, <em>en détail.</em></h1>
+        <p>Importe un exercice JSON pour retrouver son parcours et ses mesures, même sans plan d’entraînement.</p>
+
+      </section>
+      <section class="panel exercise-import-panel">
+        <div><h2>Importer un exercice</h2><p>Fichier JSON Foulée exporté depuis l’app compagnon Apple Watch.</p></div>
+        <button id="exercise-import" type="button" class="primary-button">Choisir un fichier JSON <span>↗</span></button>
+        <input id="exercise-file" type="file" accept=".json,application/json" hidden>
+        <p id="exercise-message" role="status" aria-live="polite"></p>
+      </section>
+      <div class="exercise-layout">
+        <aside class="panel exercise-library"><h2>Mes exercices</h2><div id="exercise-list"></div></aside>
+        <section id="exercise-detail" aria-live="polite"><div class="panel empty-state"><h3>Les détails apparaîtront ici.</h3><p>Importe un exercice pour consulter les traces GPS, le rythme cardiaque, l’allure, les pas par minute et le dénivelé.</p></div></section>
+      </div>
+    </main>
+
+    <main id="roadmap-page" hidden>
+      <a class="back-link" href="#espace">← Retour à l’accueil</a>
+      <section class="intro roadmap-intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> FOULÉE · FEUILLE DE ROUTE</div>
+        <h1>Une direction claire,<br><em>une foulée à la fois.</em></h1>
+        <p>Planifier → Courir → Mesurer → Comprendre → Adapter.</p>
+      </section>
+      <section class="panel roadmap-priority"><h2>Notre priorité : la personnalisation</h2><p>Terminer la boucle MVP avant les outils Analyse Expert : choisir la bonne séance, comprendre sa réalisation et adapter la suivante.</p></section>
+      <div class="roadmap-legend"><p><strong>18 / 35 fonctionnalités terminées</strong> · Mise à jour le 4 octobre 2026</p><p><span class="roadmap-done">✅ Terminé</span><span>🚧 En cours / à venir</span><span>✓ Catégorie produit</span></p></div>
+      <p class="roadmap-help">Les coches des colonnes MVP et Analyse Expert indiquent la catégorie. L’état indique séparément ce qui est implémenté; les limites et validations restantes sont précisées dans chaque ligne.</p>
+<section class="panel roadmap-section"><h2>Personnaliser et planifier</h2><div class="roadmap-table-wrap" tabindex="0" role="region" aria-label="Personnaliser et planifier"><table class="roadmap-table"><thead><tr><th scope="col">Fonctionnalité</th><th scope="col">MVP</th><th scope="col">Analyse Expert</th><th scope="col">État</th></tr></thead><tbody><tr><th scope="row">Profils sportifs et objectifs<small>Espaces indépendants, niveau, disponibilités et repères personnels.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Historique des courses et allures de référence<small>Résultats modifiables, course de référence et correction du seuil.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Génération de séances à partir de modèles<small>Endurance, tempo, fractionné et sortie longue avec étapes éditables.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Bibliothèque de plans et calendrier<small>Plusieurs plans, jours préférés, dates et objectifs de course.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Édition détaillée des séances<small>Échauffement, répétitions, récupérations et retour au calme.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Génération personnalisée selon la progression<small>Tenir compte de l’historique récent, de la charge et de la réponse à l’entraînement.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">État du jour avant la séance<small>Sommeil, fatigue, jambes et motivation pour ajuster la proposition.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr></tbody></table></div></section>
+<section class="panel roadmap-section"><h2>Courir et récupérer les résultats</h2><div class="roadmap-table-wrap" tabindex="0" role="region" aria-label="Courir et récupérer les résultats"><table class="roadmap-table"><thead><tr><th scope="col">Fonctionnalité</th><th scope="col">MVP</th><th scope="col">Analyse Expert</th><th scope="col">État</th></tr></thead><tbody><tr><th scope="row">Export des séances vers le compagnon iPhone<small>JSON Foulée converti en séance WorkoutKit; synchronisation réelle sur Watch à valider.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Validation sur iPhone et Apple Watch<small>Vérifier sur appareils réels la programmation et l’exécution des séances.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Récupération des résultats Santé<small>Export unitaire détaillé et import avec association à une séance du plan.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Bibliothèque d’exercices indépendante des plans<small>Import, détection des doublons et conservation par profil.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Suivi des séances et comparaison durée prévue / réelle<small>Séance faite ou manquée, report, durée et distance réalisées.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">RPE et ressenti après la séance<small>RPE, ressenti et commentaire à l’import d’exercice; comparaison de durée et proposition de revoir le plan par règles locales.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr></tbody></table></div></section>
+<section class="panel roadmap-section"><h2>Comprendre et adapter</h2><div class="roadmap-table-wrap" tabindex="0" role="region" aria-label="Comprendre et adapter"><table class="roadmap-table"><thead><tr><th scope="col">Fonctionnalité</th><th scope="col">MVP</th><th scope="col">Analyse Expert</th><th scope="col">État</th></tr></thead><tbody><tr><th scope="row">Parcours GPS et graphiques de base<small>Allure, fréquence cardiaque, cadence, altitude et pente; carte optionnelle.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Curseur synchronisé entre courbes et GPS<small>Lecture commune au clic, au toucher et au clavier; interpolation signalée.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Identifier les phases de séance<small>Échauffement, travail, récupération, retour au calme et répétitions.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Comparaison détaillée prévu / réalisé<small>Durées et allures moyennes des blocs associés explicitement; écarts et données manquantes expliqués. Analyse partielle, régularité et conditions non évaluées.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Lecture automatique de coach<small>Lecture contextualisée via Ollama/Qwen3 : intention, écarts, ressenti, limites et pistes. Cas fictifs testés; pertinence du jugement à vérifier.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Adaptation des séances suivantes<small>Ajuster la charge, les allures et la récupération avec une explication.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Présentation Résumé → Analyse → Expert<small>Un résumé utile, quelques courbes pertinentes puis les outils avancés.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr></tbody></table></div></section>
+<section class="panel roadmap-section"><h2>Explorer avec Analyse Expert</h2><div class="roadmap-table-wrap" tabindex="0" role="region" aria-label="Explorer avec Analyse Expert"><table class="roadmap-table"><thead><tr><th scope="col">Fonctionnalité</th><th scope="col">MVP</th><th scope="col">Analyse Expert</th><th scope="col">État</th></tr></thead><tbody><tr><th scope="row">Superposition libre des métriques<small>Choisir les courbes à afficher dans un même repère.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Zoom avancé et lecture par appui long<small>Explorer une zone et déplacer le curseur par glissement.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Zoom sur une phase et navigation dans les intervalles<small>Isoler une répétition et passer à la précédente ou à la suivante.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Superposition réelle de phases d’une même séance<small>Comparer deux répétitions sur le même graphique, recalées à zéro.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Comparaison avec les séances précédentes<small>Superposer des phases compatibles de plusieurs exercices.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Recalage par temps ou par distance<small>Comparer des répétitions chronométrées ou des distances identiques.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Sélection libre d’une portion<small>Sélectionner un segment temporaire pour l’analyser ou le comparer.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Tendances de progression<small>Comparer allure / FC, récupérations et régularité dans des conditions proches.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Non">—</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Oui">✓</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr></tbody></table></div></section>
+<section class="panel roadmap-section"><h2>Conserver et partager les données</h2><div class="roadmap-table-wrap" tabindex="0" role="region" aria-label="Conserver et partager les données"><table class="roadmap-table"><thead><tr><th scope="col">Fonctionnalité</th><th scope="col">MVP</th><th scope="col">Analyse Expert</th><th scope="col">État</th></tr></thead><tbody><tr><th scope="row">Export et import des dossiers sportifs<small>Transfert des profils, courses, plans et exercices en JSON.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Stockage partagé sur le Mac<small>Base SQLite, code d’accès, synchronisation locale et sauvegardes quotidiennes.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Imports volumineux<small>Sans plafond de taille; confirmation avant lecture au-delà de 100 Mo.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Architecture iCloud<small>Définir puis réaliser la synchronisation pour l’usage hors du réseau du Mac.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Application installable (PWA)<small>Icônes, fenêtre dédiée, aide à l’installation et écran de reconnexion hors ligne sur localhost ou HTTPS.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr><tr><th scope="row">Accès HTTPS depuis l’iPhone<small>Configurer une adresse HTTPS de confiance pour activer le service worker sur le réseau local.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-pending">🚧 En cours / à venir</span></td></tr><tr><th scope="row">Interface responsive iPhone et PWA<small>Police système Apple, formulaires empilés, actions tactiles et roadmap en cartes sur petit écran.</small></th><td class="roadmap-category" data-label="MVP"><span aria-label="Oui">✓</span></td><td class="roadmap-category" data-label="Analyse Expert"><span aria-label="Non">—</span></td><td data-label="État"><span class="roadmap-status roadmap-done">✅ Terminé</span></td></tr></tbody></table></div></section>
+    </main>
+
+    <main id="home-page" hidden>
+      <section class="intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> TON ESPACE RUNNING</div>
+        <h1>Ton exercice <em>libre.</em></h1>
+        <p>Crée une séance indépendante du plan et ajuste ses étapes à ton rythme.</p>
+
+      </section>
+
+      <div class="workspace free-workspace">
+        <div id="profile-summary" hidden></div>
+        <section class="panel builder-panel">
+          <div class="panel-heading"><div><h2>La prochaine séance</h2></div><span class="today" id="today"></span></div>
+          <div class="session-controls">
+            <div><span class="field-label">Type d’exercice</span><select id="session-type" hidden aria-hidden="true"><option value="easy">Footing</option><option value="long">Sortie longue</option><option value="tempo">Tempo</option><option value="intervals">VMA</option></select><div class="free-type-buttons" role="group" aria-label="Type d’exercice"><button type="button" data-session-type="easy" aria-pressed="true" style="--exercise-color:#2876bc">Footing</button><button type="button" data-session-type="long" aria-pressed="false" style="--exercise-color:#348357">Sortie longue</button><button type="button" data-session-type="tempo" aria-pressed="false" style="--exercise-color:#d77a20">Tempo</button><button type="button" data-session-type="intervals" aria-pressed="false" style="--exercise-color:#cc4147">VMA</button></div></div>
+            <div><label class="field-label" for="session-date">Date prévue</label><input class="text-input" id="session-date" type="date" required></div>
+            <button id="generate" class="primary-button" type="button"><span>Créer ma séance</span><span class="arrow">↗</span></button>
+          </div>
+
+          <div class="session-card" id="session-card" aria-live="polite">
+            <div class="empty-state"><div class="empty-icon">↗</div><h3>À toi de choisir le rythme.</h3><p>Choisis un type de séance puis lance la création. Tu pourras ensuite ajuster chaque étape.</p></div>
+          </div>
+          <div class="session-actions" id="session-actions" hidden>
+            <button type="button" class="secondary-button" id="add-step">＋ Ajouter une étape</button>
+            <button type="button" class="secondary-button" id="add-repeat">＋ Répétition</button>
+            <button type="button" class="secondary-button export-button" id="export">Exporter pour Apple Watch <span>↓</span></button>
+          </div>
+          <p class="coach-note" id="coach-note">Les allures proposées sont des repères indicatifs : adapte l’effort à tes sensations et à ta forme du jour.</p>
+        </section>
+      </div>
+      <footer><span>FOULÉE <span class="brand-dot">·</span> PROTOTYPE LOCAL</span><span>Conçu pour avancer, une sortie à la fois.</span></footer>
+    </main>
+    <main id="profile-page" hidden>
+      <a href="#parametres" class="calendar-back">← Paramètres</a>
+      <section class="intro"><h1>Mon profil <em>sportif.</em></h1></section>
+      <section class="panel profile-read-panel"><div class="panel-heading"><h2>Mes repères</h2><a href="#modifier-profil" class="primary-button">Mettre à jour</a></div><dl id="profile-read-details" class="profile-read-details"></dl></section>
+      <section class="panel trophy-panel"><div class="panel-heading"><div><h2>Mes trophées</h2><span id="race-count">0 course</span></div><button id="add-race" class="primary-button" type="button">Ajouter une course ＋</button></div><div id="race-list" class="race-list"></div></section>
+    </main>
+    <main id="profile-editor-page" hidden>
+      <a href="#profil" class="calendar-back">← Mon profil sportif</a>
+      <section class="intro"><h1>Mettre à jour <em>mon profil.</em></h1></section>
+      <section class="panel profile-edit-panel">
+          <form id="profile-form">
+            <label class="field-label" for="athlete-name">Nom ou prénom <span class="optional">FACULTATIF</span></label>
+            <input class="text-input" id="athlete-name" name="name" maxlength="50" placeholder="Comment t’appeler ?">
+            <label class="field-label spaced" for="goal">Mon objectif</label>
+            <select id="goal" name="goal"><option value="endurance">Développer mon endurance</option><option value="10k">Préparer un 10 km</option><option value="semi">Préparer un semi-marathon</option><option value="marathon">Préparer un marathon</option><option value="reprise">Reprendre progressivement</option></select>
+            <div class="field-row"><div><label class="field-label" for="level">Mon expérience</label><select id="level" name="level"><option value="debutant">Débutant</option><option value="regulier">Régulier</option><option value="confirme">Confirmé</option></select></div><div><label class="field-label" for="days">Sorties / semaine</label><select id="days" name="days"><option value="2">2 sorties</option><option value="3">3 sorties</option><option value="4">4 sorties</option><option value="5">5 sorties</option></select></div></div>
+            <div class="field-row"><div><label class="field-label" for="easy-pace">Allure facile</label><div class="input-wrap"><input id="easy-pace" name="easyPace" inputmode="numeric" maxlength="5" placeholder="6:45"><span>min/km</span></div></div><div><label class="field-label" for="long-run">Sortie longue</label><div class="input-wrap"><input id="long-run" name="longRun" type="number" min="5" max="42" placeholder="12"><span>km</span></div></div></div>
+            <div class="threshold-profile-field"><label class="field-label" for="threshold-pace">Mon seuil / tempo <span class="optional">FACULTATIF</span></label><div class="input-wrap"><input id="threshold-pace" name="thresholdPace" inputmode="numeric" maxlength="5" placeholder="5:55"><span>min/km</span></div><small>Si renseigné, cette allure remplace l’estimation automatique dans le plan.</small></div>
+            <button class="primary-button save-profile-button" type="submit"><span>Enregistrer mon profil</span><span>✓</span></button>
+          </form>
+      </section>
+    </main>
+    <main id="race-editor-page" hidden>
+      <a href="#profil" class="calendar-back">← Mes trophées</a>
+      <section class="intro"><h1 id="race-editor-title">Ajouter une <em>course.</em></h1></section>
+      <section class="panel race-panel">
+          <form id="race-form" class="race-form">
+            <input type="hidden" name="id">
+            <div class="field-row"><div><label class="field-label" for="race-type">Distance</label><select id="race-type" name="type"><option value="5 km">5 km</option><option value="10 km">10 km</option><option value="Semi-marathon">Semi-marathon</option><option value="Marathon">Marathon</option><option value="Trail">Trail</option><option value="Autre">Autre</option></select></div><div><label class="field-label" for="race-date">Date</label><input class="text-input" id="race-date" name="date" type="date" required></div></div>
+            <div class="field-row custom-distance-row" id="custom-distance-row" hidden><div><label class="field-label" for="race-distance">Distance parcourue</label><div class="input-wrap"><input id="race-distance" name="distance" type="number" min="1" max="250" step="0.1" placeholder="25"><span>km</span></div></div><div></div></div>
+            <label class="field-label spaced">Temps réalisé</label>
+            <div class="time-fields"><label><input name="hours" type="number" min="0" max="99" placeholder="0" aria-label="Heures"><span>h</span></label><label><input name="minutes" type="number" min="0" max="59" placeholder="45" aria-label="Minutes"><span>min</span></label><label><input name="seconds" type="number" min="0" max="59" placeholder="00" aria-label="Secondes"><span>sec</span></label></div>
+            <label class="field-label spaced" for="race-name">Nom de la course <span class="optional">FACULTATIF</span></label><input class="text-input" id="race-name" name="raceName" maxlength="70" placeholder="Ex. Marathon de Paris">
+            <div class="race-form-actions"><button class="primary-button" type="submit" id="save-race"><span>Ajouter cette course</span><span>＋</span></button><button class="cancel-edit" type="button" id="cancel-race-edit">Annuler</button></div>
+          </form>
+      </section>
+    </main>
+    <main id="session-edit-page" hidden><div id="session-edit-content"><a href="#plan" class="calendar-back">← Plan actif</a><p>Choisis une séance dans le plan pour l’éditer.</p></div></main>
+    <main id="plan-page" class="profile-page" hidden>
+      <a class="back-link" href="#accueil">← Retour à l’accueil</a>
+      <section class="intro profile-intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> MON PLAN ACTIF</div>
+        <h1>Prépare ta course,<br><em>à ton rythme.</em></h1>
+        <p>Suis les séances de ton plan actif. Gère tes autres plans dans Paramètres.</p>
+      </section>
+      <section class="panel" id="plan-empty" hidden><h2>Aucun plan actif</h2><p>Choisis un plan actif ou crée un plan dans Plans enregistrés.</p><a class="plan-open-link" href="#plans-enregistres">Gérer mes plans</a></section>
+      <div class="plan-layout">
+        <section class="panel plan-results-panel" id="plan-detail-panel" hidden>
+          <div class="panel-heading"><div><h2>Plan actif</h2></div><button type="button" id="edit-active-plan" class="secondary-button">Modifier les réglages</button></div>
+          <div id="plan-results"><div class="empty-state"><div class="empty-icon">⌁</div><h3>Ton calendrier apparaîtra ici.</h3><p>Renseigne tes dates, la fréquence hebdomadaire et ton temps visé.</p></div></div>
+        </section>
+      </div>
+      <footer><span>FOULÉE <span class="brand-dot">·</span> PROTOTYPE LOCAL</span><span>Adapte toujours la charge à tes sensations.</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <dialog id="result-match-dialog" class="result-match-dialog" aria-labelledby="result-match-title">
+    <form id="result-match-form">
+      <div class="result-match-heading"><div><span class="eyebrow">IMPORT DES RÉSULTATS</span><h2 id="result-match-title">Associer à une séance</h2></div><button id="cancel-result-match" type="button" class="editor-close" aria-label="Fermer">×</button></div>
+      <p class="result-match-intro">Choisis la séance du plan correspondant à chaque activité détectée. Les associations exactes par identifiant ou par date sont déjà sélectionnées.</p>
+      <div id="result-match-list" class="result-match-list"></div>
+      <div class="result-match-actions"><button type="button" id="skip-result-match" class="secondary-button">Annuler l’import</button><button type="submit" class="primary-button">Enregistrer les résultats <span>✓</span></button></div>
+    </form>
+  </dialog>
+  <script src="exercise-module.js"></script>
+  <script src="app-v2.js"></script>
+  <script src="pwa.js"></script>
+</body>
+</html>

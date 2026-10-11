@@ -1,0 +1,10 @@
+# Requires Docker Compose supporting !override. Use with a packaged release.
+name: foulee-test
+services:
+  foulee:
+    restart: "no"
+    ports: !override
+      - "127.0.0.1:8875:8765"
+volumes:
+  foulee-data:
+    name: foulee-test-data

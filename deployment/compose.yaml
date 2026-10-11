@@ -1,0 +1,35 @@
+name: foulee
+services:
+  foulee:
+    image: foulee:${FOULEE_RELEASE:-2026-10-11-preparation}
+    platform: linux/amd64
+    build: .
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:8765:8765"
+    environment:
+      FOULEE_PORT: "8765"
+      FOULEE_LLM_PROVIDER: ollama
+      FOULEE_LLM_URL: http://127.0.0.1:11434
+    volumes:
+      - foulee-data:/home/foulee/Library/Application Support/Foulee
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  foulee-data:
+    name: foulee-data
